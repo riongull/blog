@@ -11,8 +11,8 @@ export const publish = (values) => {
   const repo = `blog`;
   const date = moment().format('YYYY-MM-DD');
   const time = moment().format("HH:mm:ss.SSS");
-  const path = title.replace(/\s+/g, '-').toLowerCase();
-  const folder = `${date}-${path}`;
+  const spinalTitle = title.replace(/\s+/g, '-').toLowerCase();
+  const path = `${date}-${spinalTitle}`;
   const markdownFrontMatter = 
 `---
 author: "${author}"
@@ -41,7 +41,7 @@ description: "${sample}"
   };
 
   const ghRequest = new Octokat({token: `${token}`});
-  ghRequest.repos(`${username}`, `${repo}`).contents(`pages/articles/${folder}/index.md`).add(config)
+  ghRequest.repos(`${username}`, `${repo}`).contents(`pages/articles/${path}/index.md`).add(config)
   .then((res) => {
     console.info('ghRes-save:', res);
     localStorage.setItem('shaOfGitHubFile',res.content.sha);
@@ -50,7 +50,7 @@ description: "${sample}"
 
 export const saveToGitHub = (values) => {
   console.log('values-save:', values)
-  const { username, token, repo, folder, file, overwrite } = values;
+  const { username, token, repo, path, file, overwrite } = values;
   const b64EditorContent = window.btoa(localStorage.getItem('rawEditorContent'));
   const config = {
     message: overwrite ? 'Overwrote existing file from editor' : 'Created new file from editor',
@@ -59,7 +59,7 @@ export const saveToGitHub = (values) => {
   };
 
   const ghRequest = new Octokat({token: `${token}`});  
-  ghRequest.repos(`${username}`, `${repo}`).contents(`pages/articles/drafts/${folder}/${file}`).add(config)
+  ghRequest.repos(`${username}`, `${repo}`).contents(`${path}/${file}`).add(config)
   .then((res) => {
     console.info('ghRes-save:', res);
     localStorage.setItem('shaOfGitHubFile',res.content.sha);
@@ -71,11 +71,11 @@ export const loadFromGitHub = (values, dispatch, props) => {
   console.log('dispatch-load:', dispatch)
   console.log('props-load:', props)
   
-  const { username, token, repo, folder, file } = values;
+  const { username, token, repo, path, file } = values;
   const { passContent } = props;
   
   const ghRequest = new Octokat({token: `${token}`});  
-  ghRequest.repos(`${username}`, `${repo}`).contents(`pages/articles/drafts/${folder}/${file}`).fetch() // `.read` for raw file, `.fetch` for JSON
+  ghRequest.repos(`${username}`, `${repo}`).contents(`${path}/${file}`).fetch() // `.read` for raw file, `.fetch` for JSON
   .then((res) => {
     console.info('ghRes-load:', res)
     passContent(JSON.parse(window.atob(res.content)))
