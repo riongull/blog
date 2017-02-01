@@ -1,19 +1,12 @@
-### Default editor Content
+### Create a Draft Article
 
-Hello, this is the default editor content
+1. Go to https://dashcommunity.github.io/blog/compose
+2. Write some stuff
+3. Fill out the _Post to GitHub_ form
+4. Click the **Post to Github** button
 
-- One bulleted item
-- Another bulleted item
+### Submit your Draft Article to Dash Community for Publishing
 
-Some inline styling like **bold** and _italic_ and ++underline++ and highlight.
-
-1.  A numbered item
-2. Another numbered item
-
-### Another Heading
-
-And a nice blockquote below:
-
- > Ideas precede software; share your thoughts!
-
-And that ends this default editor content.
+1. Step one
+2. Step two
+3. Step three
