@@ -1,4 +1,4 @@
-# Create a Draft Article
+### Create a Draft Article
 
 1. Go to https://dashcommunity.github.io/blog/compose
 2. Write some stuff
@@ -14,4 +14,9 @@
 
 Will the "Create a Draft Article" H1 show up as unstyled when converted and saved to GitHub?
 
+- It looks like H1s  (and maybe other block types) are supported by MediumDraft and the Convert libraries, even though they are not shown in the toolbar.
+    - FYI, I changed it back to an H3 in this edit.
+
 What about the "Submit your Draft..." that I changed from H1 to H3?
+
+- Yes, clearly it did.  What did I expect?
