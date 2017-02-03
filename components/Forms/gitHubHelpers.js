@@ -2,6 +2,7 @@ import React from 'react'
 import Octokat from 'octokat'
 import { convertToRaw, convertFromRaw } from 'draft-js'
 import { stateToMarkdown } from 'draft-js-export-markdown'
+import { stateFromMarkdown } from 'draft-js-import-markdown'
 import moment from 'moment'
 
 
@@ -23,15 +24,17 @@ path: "/${path}/"
 description: "${sample}"
 ---
 `;
-  const rawEditorContent = JSON.parse(localStorage.getItem('rawEditorContent'));
-  const contentState = convertFromRaw(rawEditorContent);
+  const rawEditorContent = localStorage.getItem('rawEditorContent');
+  const contentState = convertFromRaw(JSON.parse(rawEditorContent));
   const markdownBody = stateToMarkdown(contentState);
   const markdown = `${markdownFrontMatter}${markdownBody}`
-  
+
+  console.group('publish data:')
   console.info('values-publish:', values)
   console.info('rawEditorContent:', rawEditorContent);
   console.info('contentState:', contentState);
   console.info('markdown:', markdown);
+  console.groupEnd()
 
   const b64EditorContent = window.btoa(markdown);
   const config = {
@@ -49,9 +52,16 @@ description: "${sample}"
 }
 
 export const saveToGitHub = (values) => {
-  console.log('values-save:', values)
   const { username, token, repo, path, file, overwrite } = values;
-  const b64EditorContent = window.btoa(localStorage.getItem('rawEditorContent'));
+  const isMarkdown = file.slice(-3) === '.md' ? true : false
+  const rawEditorContent = localStorage.getItem('rawEditorContent')
+  const contentToSend = isMarkdown ? stateToMarkdown(convertFromRaw(JSON.parse(rawEditorContent))) : rawEditorContent
+  console.group('saveToGitHub data:')
+  console.info('values:', values)
+  console.info('rawEditorContent:', rawEditorContent)
+  console.info('contentToSend:', contentToSend)
+  console.groupEnd()
+  const b64EditorContent = window.btoa(contentToSend)
   const config = {
     message: overwrite ? 'Overwrote existing file from editor' : 'Created new file from editor',
     content: b64EditorContent,
@@ -67,9 +77,9 @@ export const saveToGitHub = (values) => {
 }
 
 export const loadFromGitHub = (values, dispatch, props) => {
-  console.log('values-load:', values)
-  console.log('dispatch-load:', dispatch)
-  console.log('props-load:', props)
+  // console.log('values-load:', values)
+  // console.log('dispatch-load:', dispatch)
+  // console.log('props-load:', props)
   
   const { username, token, repo, path, file } = values;
   const { passContent } = props;
@@ -77,8 +87,16 @@ export const loadFromGitHub = (values, dispatch, props) => {
   const ghRequest = new Octokat({token: `${token}`});  
   ghRequest.repos(`${username}`, `${repo}`).contents(`${path}/${file}`).fetch() // `.read` for raw file, `.fetch` for JSON
   .then((res) => {
+    const isMarkdown = res.name.slice(-3) === '.md' ? true : false
+    const contentString = window.atob(res.content)
+    const content = isMarkdown ? convertToRaw(stateFromMarkdown(contentString)) : JSON.parse(contentString)
+    console.group('loadFromGitHub data:')
     console.info('ghRes-load:', res)
-    passContent(JSON.parse(window.atob(res.content)))
+    console.info('isMarkdown:', isMarkdown)
+    console.info('contentString:', contentString)
+    console.info('content:', content)
+    console.groupEnd()
+    passContent(content)
     // localStorage.setItem('rawEditorContent', window.atob(res.content));
     // localStorage.setItem('shaOfGitHubFile', `${res.sha}`);
   });
